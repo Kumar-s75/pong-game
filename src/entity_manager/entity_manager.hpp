@@ -18,3 +18,23 @@ public:
     void addEntity(const std::string& path, SDL_Renderer* renderer, Entity::Type t);
     void handleEvent(SDL_Event& event, std::shared_ptr<GameClient> client);
     void handleCollison(Sound* gameSound, bool&);
+    void render(SDL_Renderer* renderer);
+
+    void reset();
+
+    // Entities
+    std::vector<std::unique_ptr<Entity>> m_Entities;
+
+    void setEnemyPos(float x, float y);
+    void setBallData(float x_pos, float y_pos, float x_vel, float y_vel);
+private:
+
+    int& m_PlayerScore;
+    int& m_EnemyScore;
+
+    int m_SCREEN_WIDTH = 1280;
+    int m_SCREEN_HEIGHT = 720;
+};
+
+
+#endif // ENTITY_MANAGER_HPP
