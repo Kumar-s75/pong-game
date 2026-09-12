@@ -30,3 +30,35 @@ public:
 
         // Free the surface
         SDL_FreeSurface(surface);
+    }
+
+    ~Texture()
+    {
+        // Free Font
+    }
+
+    // Draw to Screen
+    void render(SDL_Renderer* renderer, int x, int y) {
+        SDL_Rect dest = {x, y, m_Width, m_Height};
+        SDL_RenderCopy(renderer, m_Texture.get(), nullptr, &dest);
+    }
+
+    // Getters
+    int getWidth() const { return m_Width; }
+    int getHeight() const { return m_Height; }
+    // Setters
+    void setWidth(int w) { m_Width = w; }
+    void setHeight(int h) { m_Height = h; }
+
+private:
+    // Texture
+    std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> m_Texture;
+
+    // Refrence to Renderer
+    SDL_Renderer* m_Renderer = nullptr;
+
+    // Texture Width and Height
+    int m_Width, m_Height;
+};
+
+#endif // TEXTURE_HPP
