@@ -98,8 +98,8 @@ To compile the project, follow these steps:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/theweird-kid/barricade-blitz.git
-    cd barricade-blitz
+    git clone 
+    cd 
     ```
 
 2. Build the project using the provided Makefile:
