@@ -42,3 +42,47 @@ public:
 
     void setRunning(bool flag) { isGameRunning = flag; }
     void resetGame();
+
+    // Entity Manager
+    void addEntity(const std::string& path, Entity::Type t);
+
+private:
+    // Util methods
+    void ParseScoreUpdate(const std::string& message, int player, int enemy);
+
+    void ParseEnemyUpdateMessage(const std::string& message, float& xPos, float& yPos);
+    void TransformEnemyCoordinates(float& xPos, float& yPos);
+
+    void ParseBallUpdateMessage(const std::string& message, float& xPos, float& yPos, float& xVel, float& yVel);
+    void TransformBallCoordinates(float& xPos, float& yPos, float& xVel, float& yVel);
+
+private:
+    bool isGameRunning = false;
+    bool updateScore = false;
+
+    // Refrence from Application context
+    SDL_Window* m_Window = nullptr;             // Window
+    SDL_Renderer* m_Renderer = nullptr;         // Renderer
+    Sound* m_GameSound = nullptr;           // Game Sound
+
+    // Hud Object
+    std::unique_ptr<Hud> m_Hud;
+
+    // Background Texture
+    std::unique_ptr<Texture> m_BackgroundTexture;
+
+    // Entitiy Manager
+    std::unique_ptr<EntityManager> m_EntityManager;
+
+    // Game Mode
+    GameMode m_GameMode;
+
+    // Player - Enemy Scores
+    int playerScore = 0;
+    int enemyScore = 0;
+
+    // Net Connection
+    std::shared_ptr<GameClient> m_Client;
+};
+
+#endif // GAME_HPP
