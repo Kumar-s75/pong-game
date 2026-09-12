@@ -69,3 +69,74 @@ void EntityManager::handleCollison(Sound* gameSound, bool& updateScore)
             }
             else if(entity->getY() > m_SCREEN_HEIGHT)
             {
+                entity->setVelocity({entity->getVelocity().first, -entity->getVelocity().second});
+
+                // Set Ball - Wall Collision Flag
+                playWallCollisionSound = true;
+                // Increase Enemy Score
+                m_EnemyScore += 1;  updateScore = true;
+            }
+            else if(entity->getY() < 0)
+            {
+                entity->setVelocity({entity->getVelocity().first, -entity->getVelocity().second});
+
+                // Set Ball - Wall Collission Flag
+                playWallCollisionSound = true;
+                // Increase Player Score
+                m_PlayerScore += 1; updateScore = true;
+            }
+
+            if(playWallCollisionSound) gameSound->playBallWallCollision();
+            continue;
+        }
+
+        // Handle Entity - Ball Collision
+        for(auto& other : m_Entities) {
+            if(entity == other) continue;
+
+            if(entity->getX() < other->getX() + other->getWidth() &&
+               entity->getX() + entity->getWidth() > other->getX() &&
+               entity->getY() < other->getY() + other->getHeight() &&
+               entity->getY() + entity->getHeight() > other->getY()
+            )
+            {
+                // PLAYER and BALL collision
+                if(entity->getType() == Entity::Type::PLAYER && other->getType() == Entity::Type::BALL) {
+                    other->setVelocity({other->getVelocity().first, -other->getVelocity().second});
+                    gameSound->playBallPlayerCollision();
+                }
+                // ENEMY and BALL collision
+                else if(entity->getType() == Entity::Type::ENEMY && other->getType() == Entity::Type::BALL) {
+                    other->setVelocity({other->getVelocity().first, -other->getVelocity().second});
+                    gameSound->playBallPlayerCollision();
+                }
+            }
+        }
+    }
+}
+
+void EntityManager::reset()
+{
+    for(auto& entity : m_Entities) {
+        entity->reset();
+    }
+}
+
+void EntityManager::render(SDL_Renderer* renderer)
+{
+    // Render all entities to the screen
+    for(auto& entity : m_Entities) {
+        entity->render(renderer);
+    }
+}
+
+void EntityManager::setEnemyPos(float x, float y) {
+    if(m_Entities[1]->getX() != x)m_Entities[1]->setX(x);
+    if(m_Entities[1]->getY() != y)m_Entities[1]->setY(y);
+}
+
+void EntityManager::setBallData(float x_pos, float y_pos, float x_vel, float y_vel) {
+    m_Entities[2]->setX(x_pos);
+    m_Entities[2]->setY(y_pos);
+    m_Entities[2]->setVelocity({x_vel, y_vel});
+}
