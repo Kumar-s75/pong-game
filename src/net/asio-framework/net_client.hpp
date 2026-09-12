@@ -57,3 +57,63 @@ namespace wkd
 
             // Disconnect from the server
             void Disconnect()
+            {
+                // If connection exits, and it's connected then...
+                if(IsConnected())
+                {
+                    // ...Disconnect the server gracefully
+                    m_connection->Disconnect();
+                }
+
+                // Either way, we're also done with the asio context...
+                m_context.stop();
+                // ...and its thread
+                if(thrContext.joinable())
+                {
+                    thrContext.join();
+                }
+
+                // Destroy the connection object
+                m_connection.release();
+            }
+
+            // Check if client is actually connected to a server
+            bool IsConnected()
+            {
+                if(m_connection)
+                    return m_connection->IsConnected();
+                else
+                    return false;
+            }
+
+            // Send message to server
+            void Send(const message<T>& msg)
+            {
+                if(IsConnected())
+                {
+                    m_connection->Send(msg);
+                }
+            }
+
+            // Retrieve queue of messages from server
+            thread_safe_queue<owned_message<T>>& Incoming()
+            {
+                return m_qMessageIn;
+            }
+
+        protected:
+            // asio context handles the data transfer...
+            asio::io_context m_context;
+            // ...but needs a thread of its own to execute work commands
+            std::thread thrContext;
+            // the client has a single instance of a "connection" object, which handles data transfer
+            std::unique_ptr<connection<T>> m_connection;
+
+        private:
+            // thread safe queue of the incoming messages from the server
+            thread_safe_queue<owned_message<T>> m_qMessageIn;
+        };
+    }
+}
+
+#endif // NET_CLIENT_HPP
