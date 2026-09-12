@@ -1,0 +1,11 @@
+# Local automation state
+.reticle/
+
+# ImGui runtime preferences
+imgui.ini
+
+# Build output
+bin/
+
+# Platform metadata
+.DS_Store
