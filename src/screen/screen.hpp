@@ -118,3 +118,123 @@ private:
         }
 
         // Init ImGui
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+        ImGui_ImplSDL2_InitForSDLRenderer(m_Window.get(), m_Renderer.get());
+        ImGui_ImplSDLRenderer2_Init(m_Renderer.get());
+
+        // Set background color
+        SDL_SetRenderDrawColor(m_Renderer.get(), 255, 255, 255, 255); // Set background color to white
+        SDL_RenderClear(m_Renderer.get());
+        SDL_RenderPresent(m_Renderer.get());
+
+    }
+
+    void handleEvents()
+    {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            // Handle In Game events
+            if(m_Game->running()) m_Game->handleEvents(event);
+
+            // Handle Menu events
+            else m_Menu->handleEvents(event);
+
+            // Handle screen events here
+            if(event.type == SDL_KEYDOWN) {
+                switch(event.key.keysym.sym)
+                {
+                    case SDLK_ESCAPE:                   // Quit
+                        m_isRunning = false;
+                        break;
+                    case SDLK_g:                        // Start/Stop Game
+                        toggle_runGame = true;
+                        break;
+                    case SDLK_r:
+                        m_Game->resetGame();
+                        m_Client->SendReset();
+                        break;
+                    case SDLK_m:                        // Play/Pause Music
+                        toggle_musicStatus = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (event.type == SDL_QUIT) {
+                m_isRunning = false;
+            }
+        }
+    }
+
+    void update()
+    {
+        // Toggle Game Status
+        if(toggle_runGame) {
+            m_Game->setRunning(!m_Game->running());
+
+            // reset toggle status
+            toggle_runGame = false;
+        }
+
+        // Toggle Music Status
+        if(toggle_musicStatus)
+        {
+            if(m_GameSound->getMusicStatus())
+                m_GameSound->pauseMusic();
+            else
+                m_GameSound->playMusic();
+
+            // reset toggle state
+            toggle_musicStatus = false;
+        }
+
+        // Update Game status
+        if(m_Game->running()) m_Game->update();
+        else m_Menu->update();
+
+    }
+
+    void render()
+    {
+        // Render game
+        if(m_Game->running()) m_Game->render(deltaTime);
+        // Render Main Menu
+        else m_Menu->render();
+
+    }
+
+private:
+    // SDL Window Instance
+    std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> m_Window;
+    // SDL Renderer Instance
+    std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> m_Renderer;
+
+    // Menu Object
+    std::unique_ptr<Menu> m_Menu;
+    // Game Object
+    std::unique_ptr<Game> m_Game;
+
+    // Game Sound Object
+    std::unique_ptr<Sound> m_GameSound;
+
+    // Delta Time
+    float deltaTime = 0.0f;
+
+    // Status
+    bool m_isRunning = false;
+
+    // toggle states
+    bool toggle_runGame = false;
+    bool toggle_musicStatus = false;
+
+    // For FPS calculation
+    std::chrono::high_resolution_clock::time_point m_LastFrameTime;
+
+    // Net Connection
+    std::shared_ptr<GameClient> m_Client;
+};
+
+#endif // SCREEN_HPP
