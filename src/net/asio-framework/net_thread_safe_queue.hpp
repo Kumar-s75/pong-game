@@ -55,3 +55,60 @@ namespace wkd
                 m_Deque.emplace_back(std::move(item));
 
                 // Signal to wake up
+                std::unique_lock<std::mutex> ul(muxBlocking);
+                cvBlocking.notify_one();
+            }
+
+            // Adds an item to front of the queue
+            void push_front(const T& item)
+            {
+                // Push Element to the front of the queue
+                std::scoped_lock lock(muxQueue);
+                m_Deque.emplace_front(std::move(item));
+
+                // Signal to wake up
+                std::unique_lock<std::mutex> ul(muxBlocking);
+                cvBlocking.notify_one();
+            }
+
+            // Returns true if the queue has no items
+            bool empty()
+            {
+                std::scoped_lock lock(muxQueue);
+                return m_Deque.empty();
+            }
+
+            // Returns number of items in queue
+            size_t count()
+            {
+                std::scoped_lock lock(muxQueue);
+                return m_Deque.size();
+            }
+
+            // Clears queue
+            void clear()
+            {
+                std::scoped_lock lock(muxQueue);
+                m_Deque.clear();
+            }
+
+            void wait()
+            {
+                while(empty())
+                {
+                    std::unique_lock<std::mutex> ul(muxBlocking);
+                    cvBlocking.wait(ul);
+                }
+            }
+
+        protected:
+            std::mutex muxQueue;
+            std::deque<T> m_Deque;
+
+            std::condition_variable cvBlocking;
+            std::mutex muxBlocking;
+        };
+    }
+}
+
+#endif // NET_THREAD_SAFE_QUEUE_HPP
