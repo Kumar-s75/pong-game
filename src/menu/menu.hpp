@@ -28,3 +28,34 @@ public:
 
     }
 
+    void update()
+    {
+
+    }
+
+    void render()
+    {
+        // Clear the screen
+        SDL_SetRenderDrawColor(m_Renderer, 255, 255, 255, 255); // Set background color to white
+        SDL_RenderClear(m_Renderer);
+
+        // Render Background
+        m_MenuTexture->render(m_Renderer, 0, 0);
+        m_LogoTexture->render(m_Renderer, 2*(SCREEN_WIDTH/10), 1);
+
+        // Present the rendered frame
+        SDL_RenderPresent(m_Renderer);
+    }
+
+private:
+
+    // Refrence from Application context
+    SDL_Window* m_Window = nullptr;             // Window
+    SDL_Renderer* m_Renderer = nullptr;         // Renderer
+
+    // Main Menu Texture
+    std::unique_ptr<Texture> m_MenuTexture;
+    std::unique_ptr<Texture> m_LogoTexture;
+};
+
+#endif // MENU_HPP
